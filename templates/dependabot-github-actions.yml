@@ -1,0 +1,19 @@
+# Dependabot configuration for GitHub Actions
+# This template monitors and updates GitHub Actions versions
+
+version: 2
+updates:
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/" # Location of workflow files
+    schedule:
+      interval: "weekly" # Check for updates weekly
+      day: "monday"
+      time: "09:00" # Run at 09:00 UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"

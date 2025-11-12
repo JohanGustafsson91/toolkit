@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  validate:
+    name: Validate workflows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate workflow files
+        run: |
+          echo "Checking workflow YAML syntax..."
+          for workflow in .github/workflows/*.yml; do
+            if [ -f "$workflow" ]; then
+              echo "Validating $workflow"
+              # Basic YAML syntax check
+              python3 -c "import yaml; yaml.safe_load(open('$workflow'))" || exit 1
+            fi
+          done
+          echo "✅ All workflow files are valid YAML"
+
+  auto-merge:
+    name: Auto-merge Dependabot
+    uses: ./.github/workflows/auto-merge-dependabot.yml
+    needs: validate
+    if: github.actor == 'dependabot[bot]'
+    with:
+      merge-method: "squash"
+      exclude: "none"  # Auto-merge all updates since this is just for templates
+    permissions:
+      pull-requests: write
+      contents: write

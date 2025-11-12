@@ -1,0 +1,82 @@
+name: Auto-merge Dependabot (Reusable)
+
+# Reusable workflow for auto-merging Dependabot PRs
+on:
+  workflow_call:
+    inputs:
+      merge-method:
+        description: "Merge method to use (squash, merge, rebase)"
+        required: false
+        type: string
+        default: "squash"
+      exclude:
+        description: "Exclude major, minor, or patch updates (or 'none' to merge all)"
+        required: false
+        type: string
+        default: "major"
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  auto-merge:
+    name: Auto-merge Dependabot PR
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'
+
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check update type
+        id: check
+        run: |
+          UPDATE_TYPE="${{ steps.metadata.outputs.update-type }}"
+          EXCLUDE="${{ inputs.exclude }}"
+          
+          echo "Update type: $UPDATE_TYPE"
+          echo "Exclude: $EXCLUDE"
+          
+          # Determine if we should skip this PR
+          SHOULD_MERGE="true"
+          if [ "$EXCLUDE" = "none" ]; then
+            echo "Auto-merging all update types"
+          elif [ "$EXCLUDE" = "major" ] && [ "$UPDATE_TYPE" = "version-update:semver-major" ]; then
+            SHOULD_MERGE="false"
+            echo "Skipping: major update excluded"
+          elif [ "$EXCLUDE" = "minor" ] && ([ "$UPDATE_TYPE" = "version-update:semver-minor" ] || [ "$UPDATE_TYPE" = "version-update:semver-major" ]); then
+            SHOULD_MERGE="false"
+            echo "Skipping: minor/major update excluded"
+          elif [ "$EXCLUDE" = "patch" ] && [ "$UPDATE_TYPE" != "version-update:semver-patch" ]; then
+            SHOULD_MERGE="false"
+            echo "Skipping: only patches allowed"
+          fi
+          
+          echo "should_merge=$SHOULD_MERGE" >> $GITHUB_OUTPUT
+
+      - name: Enable auto-merge for Dependabot PRs
+        if: steps.check.outputs.should_merge == 'true'
+        run: |
+          echo "Enabling auto-merge with method: ${{ inputs.merge-method }}"
+          
+          # Enable auto-merge using the specified merge method
+          # Note: This may fail for PRs modifying .github/workflows/* due to GitHub security restrictions
+          case "${{ inputs.merge-method }}" in
+            squash)
+              gh pr merge --auto --squash "$PR_URL" || echo "⚠️  Auto-merge failed (may require manual approval for workflow changes)"
+              ;;
+            merge)
+              gh pr merge --auto --merge "$PR_URL" || echo "⚠️  Auto-merge failed (may require manual approval for workflow changes)"
+              ;;
+            rebase)
+              gh pr merge --auto --rebase "$PR_URL" || echo "⚠️  Auto-merge failed (may require manual approval for workflow changes)"
+              ;;
+          esac
+          echo "✅ Auto-merge command completed"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,114 @@
+name: Validate (Reusable)
+
+# Reusable workflow for validation (lint, test, build)
+# Works with npm, pnpm, or yarn
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node.js version to use"
+        required: false
+        type: string
+        default: "20.x"
+      package-manager:
+        description: "Package manager to use (npm, pnpm, or yarn)"
+        required: false
+        type: string
+        default: "npm"
+      lint-script:
+        description: 'npm script to run for linting (e.g., "lint")'
+        required: false
+        type: string
+        default: "lint"
+      test-script:
+        description: 'npm script to run for testing (e.g., "test")'
+        required: false
+        type: string
+        default: "test"
+      build-script:
+        description: 'npm script to run for building (e.g., "build")'
+        required: false
+        type: string
+        default: "build"
+      skip-lint:
+        description: "Skip linting step"
+        required: false
+        type: boolean
+        default: false
+      skip-test:
+        description: "Skip testing step"
+        required: false
+        type: boolean
+        default: false
+      skip-build:
+        description: "Skip build step"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  validate:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Setup Node.js
+      - name: Setup Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      # Setup pnpm if needed
+      - name: Setup pnpm
+        if: inputs.package-manager == 'pnpm'
+        uses: pnpm/action-setup@v3
+        with:
+          version: latest
+
+      # Detect lockfile and setup cache
+      - name: Setup package manager cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: ${{ inputs.package-manager }}
+
+      # Set install command based on package manager
+      - name: Set package manager commands
+        id: pm-commands
+        run: |
+          if [ "${{ inputs.package-manager }}" = "npm" ]; then
+            echo "install=npm ci" >> $GITHUB_OUTPUT
+            echo "run=npm run" >> $GITHUB_OUTPUT
+          else
+            echo "install=${{ inputs.package-manager }} install --frozen-lockfile" >> $GITHUB_OUTPUT
+            echo "run=${{ inputs.package-manager }} run" >> $GITHUB_OUTPUT
+          fi
+
+      # Install dependencies
+      - name: Install dependencies
+        run: ${{ steps.pm-commands.outputs.install }}
+
+      # Run linting
+      - name: Run linting
+        if: ${{ !inputs.skip-lint }}
+        run: ${{ steps.pm-commands.outputs.run }} ${{ inputs.lint-script }}
+
+      # Run tests
+      - name: Run tests
+        if: ${{ !inputs.skip-test }}
+        run: ${{ steps.pm-commands.outputs.run }} ${{ inputs.test-script }}
+
+      # Run build
+      - name: Run build
+        if: ${{ !inputs.skip-build }}
+        run: ${{ steps.pm-commands.outputs.run }} ${{ inputs.build-script }}
