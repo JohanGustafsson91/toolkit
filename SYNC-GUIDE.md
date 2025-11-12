@@ -11,13 +11,13 @@ Dependabot configuration files must live in each repository's `.github/dependabo
 ### 1. Clone this repository (one-time setup)
 
 ```bash
-git clone https://github.com/JohanGustafsson91/github-reusable-actions.git ~/github-reusable-actions
+git clone https://github.com/YOUR_USERNAME/toolkit.git ~/toolkit
 ```
 
 ### 2. Sync to your repositories
 
 ```bash
-cd ~/github-reusable-actions
+cd ~/toolkit
 
 # Sync npm template to a repository
 ./sync-dependabot.sh ~/code/my-repo npm
@@ -57,7 +57,7 @@ git push
 When you update the templates in this repository:
 
 ```bash
-cd ~/github-reusable-actions
+cd ~/toolkit
 git pull  # Get latest template changes
 
 # Re-sync to all your repositories
@@ -78,7 +78,7 @@ git pull  # Get latest template changes
 If you prefer not to use the script:
 
 ```bash
-cp ~/github-reusable-actions/templates/dependabot-npm.yml ~/code/my-repo/.github/dependabot.yml
+cp ~/toolkit/templates/dependabot-npm.yml ~/code/my-repo/.github/dependabot.yml
 ```
 
 ## Customizing Templates

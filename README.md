@@ -1,6 +1,13 @@
-# Reusable GitHub Actions Workflows
+# Developer Toolkit
 
-A collection of reusable GitHub Actions workflows for consistent CI/CD across multiple repositories.
+A collection of reusable development components including GitHub Actions workflows, templates, and coding standards for consistent development practices across projects.
+
+## Contents
+
+This toolkit contains:
+- **GitHub Actions Workflows**: Reusable CI/CD workflows for consistent automation
+- **Dependabot Templates**: Standardized dependency management configurations
+- **Development Standards**: (Coming soon) Coding guidelines and best practices
 
 ## Available Workflows
 
@@ -23,7 +30,7 @@ on:
 
 jobs:
   validate:
-    uses: YOUR_USERNAME/github-actions-reusable/.github/workflows/validate.yml@main
+     uses: YOUR_USERNAME/toolkit/.github/workflows/validate.yml@main
     with:
       node-version: '20.x'
       package-manager: 'pnpm'
@@ -61,7 +68,7 @@ on:
 
 jobs:
   auto-merge:
-    uses: YOUR_USERNAME/github-actions-reusable/.github/workflows/auto-merge-dependabot.yml@main
+     uses: YOUR_USERNAME/toolkit/.github/workflows/auto-merge-dependabot.yml@main
     with:
       merge-method: 'squash'
       exclude: 'major'
@@ -122,8 +129,8 @@ Simply reference the workflows in your repository as shown in the usage examples
 Clone this repository and use the sync script:
 
 ```bash
-git clone https://github.com/JohanGustafsson91/github-reusable-actions.git
-cd github-reusable-actions
+git clone https://github.com/YOUR_USERNAME/toolkit.git
+cd toolkit
 ./sync-dependabot.sh ~/path/to/your/repo npm
 ```
 
@@ -143,7 +150,7 @@ on:
 
 jobs:
   validate:
-    uses: YOUR_USERNAME/github-actions-reusable/.github/workflows/validate.yml@main
+     uses: YOUR_USERNAME/toolkit/.github/workflows/validate.yml@main
     with:
       node-version: '20.x'
       package-manager: 'pnpm'
@@ -159,7 +166,7 @@ on:
 jobs:
   auto-merge:
     needs: [validate] # Wait for CI to pass
-    uses: YOUR_USERNAME/github-actions-reusable/.github/workflows/auto-merge-dependabot.yml@main
+     uses: YOUR_USERNAME/toolkit/.github/workflows/auto-merge-dependabot.yml@main
 ```
 
 **.github/dependabot.yml:**
