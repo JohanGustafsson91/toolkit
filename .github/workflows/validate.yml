@@ -64,7 +64,7 @@ jobs:
 
       # Setup Node.js
       - name: Setup Node.js ${{ inputs.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.node-version }}
 
@@ -77,7 +77,7 @@ jobs:
 
       # Detect lockfile and setup cache
       - name: Setup package manager cache
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.node-version }}
           cache: ${{ inputs.package-manager }}
