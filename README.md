@@ -7,7 +7,7 @@ A collection of reusable development components including GitHub Actions workflo
 This toolkit contains:
 - **GitHub Actions Workflows**: Reusable CI/CD workflows for consistent automation
 - **Dependabot Templates**: Standardized dependency management configurations
-- **Development Standards**: (Coming soon) Coding guidelines and best practices
+- **Development Standards**: Coding guidelines and best practices ([CODING_PRINCIPLES.md](./CODING_PRINCIPLES.md))
 
 ## Available Workflows
 
@@ -174,12 +174,30 @@ jobs:
 # Copy from this repository's .github/dependabot.yml
 ```
 
+## Coding Guidelines
+
+This repository includes comprehensive coding guidelines that reflect a pragmatic approach to software development, emphasizing:
+
+- **KISS (Keep It Simple, Stupid)** - Choose simple solutions over clever complexity
+- **YAGNI (You Aren't Gonna Need It)** - Build features only when needed
+- **Selective Functional Programming** - Use FP concepts where they add clarity
+
+See [CODING_PRINCIPLES.md](./CODING_PRINCIPLES.md) for detailed guidance on:
+- Project architecture and file organization
+- Component structure and state management
+- Function design and TypeScript usage
+- Testing philosophy and CSS patterns
+- Performance considerations and error handling
+
+These guidelines can be used to initialize coding agents or onboard team members to maintain consistency across projects.
+
 ## Tips
 
 - Pin workflows to a specific version/tag for stability: `@v1.0.0`
 - Use `@main` to always get the latest version
 - Combine the validate workflow with auto-merge for automated dependency management
 - Customize script names based on your package.json scripts
+- Follow the coding guidelines for consistent development practices
 
 ## License
 
