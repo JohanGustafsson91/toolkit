@@ -72,8 +72,6 @@ jobs:
       - name: Setup pnpm
         if: inputs.package-manager == 'pnpm'
         uses: pnpm/action-setup@v6
-        with:
-          version: latest
 
       # Detect lockfile and setup cache
       - name: Setup package manager cache
