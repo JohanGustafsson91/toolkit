@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PR på en halv minut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F6F7F9; --ink: #1B222C; --muted: #66707D; --rule: #DCE1E7; --hi: #DCE8FB; --hi-ink: #1D4FA8;
+  --warn: #B4570A; --warn-bg: #FCEBD8; --add: #E2F3E9; --add-ink: #155D39; --del: #FBE5E8; --del-ink: #8A1C2E; --card: #FFFFFF;
+  color-scheme: light; box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161B22; --ink: #E3E8EF; --muted: #96A1AF; --rule: #2C3542; --hi: #213656; --hi-ink: #A9C6F5;
+  --warn: #F0A55C; --warn-bg: #3B2A17; --add: #16362A; --add-ink: #93E2B8; --del: #3D1D25; --del-ink: #F2A5B2; --card: #1D232D; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #161B22; --ink: #E3E8EF; --muted: #96A1AF; --rule: #2C3542; --hi: #213656; --hi-ink: #A9C6F5;
+  --warn: #F0A55C; --warn-bg: #3B2A17; --add: #16362A; --add-ink: #93E2B8; --del: #3D1D25; --del-ink: #F2A5B2; --card: #1D232D; color-scheme: dark; }
+*, *::before, *::after { box-sizing: inherit; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Source Serif 4", Georgia, serif; }
+/* Smal nog för ett eget fönster bredvid GitHub. */
+.wrap { max-width: 480px; margin: 0 auto; padding: 28px 16px 56px; }
+.title { font: 500 12.5px/1.4 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); margin: 0 0 14px; }
+.para { font-size: 19px; line-height: 1.55; margin: 0; }
+.s { cursor: pointer; border-radius: 4px; padding: 1px 2px; margin: 0 -2px;
+  text-decoration: underline; text-decoration-color: var(--rule); text-decoration-thickness: 2px; text-underline-offset: 5px; }
+.s:hover { text-decoration-color: var(--muted); }
+.s:focus-visible { outline: 2px solid var(--hi-ink); outline-offset: 2px; }
+.s.warn { text-decoration-color: var(--warn); }
+.s.warn::before { content: "⚠ "; color: var(--warn); }
+.s.on { background: var(--hi); color: var(--hi-ink); text-decoration-color: transparent; }
+.hint { font: 12.5px/1.4 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); margin: 16px 0 0; }
+
+.zoom { margin-top: 24px; }
+.zoom[hidden] { display: none; }
+.legend { font: 11.5px/1.6 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); margin: 0 0 8px; }
+.legend .mark { margin-left: 8px; } .legend .mark:first-child { margin-left: 0; }
+.mark.warn { color: var(--warn); }
+.sk { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.item { border-top: 1px solid var(--rule); }
+.item:first-child { border-top: 0; }
+.row { display: grid; grid-template-columns: 16px 1fr; gap: 6px; width: 100%; text-align: left; border: 0; background: none; color: inherit;
+  padding: 9px 12px 2px; font: 13px/1.45 "IBM Plex Mono", ui-monospace, monospace; cursor: pointer; overflow-wrap: anywhere; }
+.item:not(:has(.gh)) .row { padding-bottom: 9px; }
+.row:hover { background: var(--bg); }
+.row:focus-visible { outline: 2px solid var(--hi-ink); outline-offset: -2px; }
+.mark { color: var(--muted); }
+.mark.new { color: var(--add-ink); } .mark.mod { color: var(--warn); } .mark.del { color: var(--del-ink); }
+.note { display: block; font-family: "Source Serif 4", Georgia, serif; font-size: 14.5px; color: var(--muted); margin-top: 2px; }
+.note.warn { color: var(--warn); }
+.gh { display: inline-block; margin: 0 12px 9px 34px; font: 12px "IBM Plex Mono", ui-monospace, monospace; color: var(--hi-ink);
+  text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+.gh:hover { text-decoration-color: currentColor; }
+button.gh { background: none; border: 0; padding: 0; cursor: pointer; text-align: left; overflow-wrap: anywhere; }
+.detail { margin: 0; padding: 10px 12px 12px 34px; font-size: 15.5px; line-height: 1.5; border-top: 1px dashed var(--rule); background: var(--bg); }
+.all { margin-top: 28px; font: 12.5px "IBM Plex Mono", ui-monospace, monospace; }
+.other { margin-top: 12px; font: 12px/1.6 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); }
+.all button { background: none; border: 0; color: var(--muted); padding: 0; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="title" id="title"></p>
+  <p class="para" id="para"></p>
+  <p class="hint">Klicka på en mening för att se vad som ligger bakom den.</p>
+  <div class="zoom" id="zoom" hidden>
+    <p class="legend"><span class="mark new">+</span> ny <span class="mark mod">~</span> ändrad <span class="mark del">−</span> borttagen <span class="mark">✓</span> test <span class="mark warn">⚠</span> fynd att ta ställning till</p>
+    <div class="sk" id="sk"></div>
+  </div>
+  <div class="all"><button id="allBtn">Visa alla ändrade funktioner</button></div>
+  <p class="other" id="other"></p>
+</div>
+<script id="pr-data" type="application/json">__PR_DATA__</script>
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById('pr-data').textContent);
+  const MARK = { new: '+', mod: '~', del: '−', test: '✓' };
+  document.getElementById('title').textContent = D.title;
+  document.title = D.title;
+  const para = document.getElementById('para'), zoom = document.getElementById('zoom'), sk = document.getElementById('sk');
+  let active = null;
+
+  const spans = D.sentences.map((s, i) => {
+    const el = document.createElement('span');
+    el.className = 's' + (s.warn ? ' warn' : '');
+    el.tabIndex = 0; el.setAttribute('role', 'button');
+    el.textContent = s.text;
+    el.addEventListener('click', () => show(i));
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(i); } });
+    para.appendChild(el);
+    if (i < D.sentences.length - 1) para.appendChild(document.createTextNode(' '));
+    return el;
+  });
+
+  function renderItems(items) {
+    sk.innerHTML = '';
+    items.forEach(it => {
+      const box = document.createElement('div'); box.className = 'item';
+      const b = document.createElement('button'); b.className = 'row';
+      b.setAttribute('aria-expanded', 'false');
+      const m = document.createElement('span'); m.className = 'mark ' + (it.status || ''); m.textContent = MARK[it.status] || ' ';
+      const t = document.createElement('span'); t.textContent = it.sig;
+      if (it.note) { const n = document.createElement('span'); n.className = 'note' + (it.warn ? ' warn' : ''); n.textContent = (it.warn ? '⚠ ' : '') + it.note; t.appendChild(n); }
+      b.append(m, t);
+      box.appendChild(b);
+      if (it.href) {
+        const a = document.createElement('a'); a.className = 'gh'; a.href = it.href;
+        // Named target: every link reuses the same review tab instead of piling up new ones.
+        a.target = 'review-diff';
+        a.textContent = D.link_label + ' ↗'; a.title = it.file + ' ' + (it.side || 'R') + it.line;
+        box.appendChild(a);
+      } else if (it.copy) {
+        const c = document.createElement('button'); c.className = 'gh copy'; c.title = it.copy;
+        c.textContent = D.link_label;
+        c.addEventListener('click', async () => {
+          const ok = await copyText(it.copy);
+          c.textContent = ok ? 'Kopierat – klistra in i Neovim och tryck Enter' : it.copy;
+          setTimeout(() => { c.textContent = D.link_label; }, ok ? 2500 : 10000);
+        });
+        box.appendChild(c);
+      }
+      const detail = document.createElement('p'); detail.className = 'detail'; detail.textContent = it.detail; detail.hidden = true;
+      b.addEventListener('click', () => {
+        detail.hidden = !detail.hidden;
+        b.setAttribute('aria-expanded', String(!detail.hidden));
+      });
+      box.appendChild(detail); sk.appendChild(box);
+    });
+    zoom.hidden = false;
+  }
+
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (_) { /* file:// in some browsers */ }
+    const t = document.createElement('textarea'); t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
+    t.remove();
+    return ok;
+  }
+
+  const allBtn = document.getElementById('allBtn');
+  const ALL_LABEL = allBtn.textContent;
+
+  // i is a sentence index or 'all'; clicking the open one again closes it.
+  function show(i) {
+    active = active === i ? null : i;
+    spans.forEach((s, j) => s.classList.toggle('on', j === active));
+    allBtn.textContent = active === 'all' ? 'Dölj alla ändrade funktioner' : ALL_LABEL;
+    allBtn.setAttribute('aria-expanded', String(active === 'all'));
+    if (active === null) { zoom.hidden = true; return; }
+    renderItems(active === 'all' ? D.sentences.flatMap(s => s.items) : D.sentences[active].items);
+  }
+  allBtn.addEventListener('click', () => show('all'));
+  if (D.other_files && D.other_files.length) {
+    document.getElementById('other').textContent = 'Övrigt, går att skumma: ' + D.other_files.map(o => o.file + (o.reason ? ' (' + o.reason + ')' : '')).join(', ');
+  }
+})();
+</script>
+</body>
+</html>

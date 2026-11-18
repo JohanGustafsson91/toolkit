@@ -8,6 +8,7 @@ This toolkit contains:
 - **GitHub Actions Workflows**: Reusable CI/CD workflows for consistent automation
 - **Dependabot Templates**: Standardized dependency management configurations
 - **Development Standards**: Coding guidelines and best practices ([CODING_PRINCIPLES.md](./CODING_PRINCIPLES.md))
+- **AI Skills**: Claude Code skills in [`ai/skills/`](./ai/skills/)
 
 ## Available Workflows
 
@@ -190,6 +191,26 @@ See [CODING_PRINCIPLES.md](./CODING_PRINCIPLES.md) for detailed guidance on:
 - Performance considerations and error handling
 
 These guidelines can be used to initialize coding agents or onboard team members to maintain consistency across projects.
+
+## AI Skills
+
+Skills for Claude Code live in [`ai/skills/`](./ai/skills/), one folder per skill:
+
+- **`pr-review`** - Turns a GitHub PR, GitLab MR, commit or local uncommitted changes into a short page you can skim in half a minute, with links to the exact line in the diff (or a `:e` command for Neovim).
+
+To use a skill, link it into your Claude Code skills folder:
+
+```bash
+ln -s ~/code/toolkit/ai/skills/pr-review ~/.claude/skills/pr-review
+```
+
+If `~/.claude/skills/pr-review` already exists as a folder, move it away first; otherwise `ln` puts the link inside it and Claude keeps using the old copy:
+
+```bash
+mv ~/.claude/skills/pr-review ~/.claude/skills/pr-review.bak
+```
+
+Run the skill's tests with `python3 -m unittest discover -s ai/skills/pr-review/tests`.
 
 ## Tips
 
