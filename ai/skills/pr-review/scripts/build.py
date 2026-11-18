@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 STATUSES = ("new", "mod", "del", "test")
 SIDES = ("R", "L")
 MAX_DETAIL_WORDS = 70
-HUNK = re.compile(r"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@")
+HUNK = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
 REPO = re.compile(r"[\w.-]+(/[\w.-]+)+")
 SHA = re.compile(r"[0-9a-f]{7,40}")
 
@@ -50,9 +50,23 @@ def parse_diff(diff_text):
     """
     lines, deleted = {}, set()
     old_file = file = None
-    old = new = 0
+    old = new = old_left = new_left = 0
     for raw in diff_text.splitlines():
-        if raw.startswith("diff "):
+        # Inside a hunk, count down its lengths: a removed "-- x" or added "++ x"
+        # looks exactly like a ---/+++ file header otherwise.
+        if old_left or new_left:
+            kind = raw[:1] or " "  # some tools strip the space off empty context lines
+            if kind not in (" ", "+", "-"):
+                continue  # "\ No newline at end of file"
+            if file and kind in (" ", "-"):
+                lines[(file, "L", old)] = (kind, old, new)
+            if file and kind in (" ", "+"):
+                lines[(file, "R", new)] = (kind, old, new)
+            if kind in (" ", "-"):
+                old, old_left = old + 1, old_left - 1
+            if kind in (" ", "+"):
+                new, new_left = new + 1, new_left - 1
+        elif raw.startswith("diff "):
             old_file = file = None
         elif raw.startswith("--- "):
             old_file = header_path(raw[4:])
@@ -61,15 +75,8 @@ def parse_diff(diff_text):
             if raw.rstrip("\t") == "+++ /dev/null" and old_file:
                 deleted.add(old_file)
         elif m := HUNK.match(raw):
-            old, new = int(m[1]), int(m[2])
-        elif file and raw[:1] in (" ", "+", "-"):
-            kind = raw[0]
-            if kind in (" ", "-"):
-                lines[(file, "L", old)] = (kind, old, new)
-            if kind in (" ", "+"):
-                lines[(file, "R", new)] = (kind, old, new)
-            old += kind in (" ", "-")
-            new += kind in (" ", "+")
+            old, new = int(m[1]), int(m[3])
+            old_left, new_left = int(m[2] or 1), int(m[4] or 1)
     return lines, deleted
 
 

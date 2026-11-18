@@ -204,6 +204,14 @@ To use a skill, link it into your Claude Code skills folder:
 ln -s ~/code/toolkit/ai/skills/pr-review ~/.claude/skills/pr-review
 ```
 
+If `~/.claude/skills/pr-review` already exists as a folder, move it away first; otherwise `ln` puts the link inside it and Claude keeps using the old copy:
+
+```bash
+mv ~/.claude/skills/pr-review ~/.claude/skills/pr-review.bak
+```
+
+Run the skill's tests with `python3 -m unittest discover -s ai/skills/pr-review/tests`.
+
 ## Tips
 
 - Pin workflows to a specific version/tag for stability: `@v1.0.0`

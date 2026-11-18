@@ -37,6 +37,9 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Source
 
 .zoom { margin-top: 24px; }
 .zoom[hidden] { display: none; }
+.legend { font: 11.5px/1.6 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); margin: 0 0 8px; }
+.legend .mark { margin-left: 8px; } .legend .mark:first-child { margin-left: 0; }
+.mark.warn { color: var(--warn); }
 .sk { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
 .item { border-top: 1px solid var(--rule); }
 .item:first-child { border-top: 0; }
@@ -64,7 +67,10 @@ button.gh { background: none; border: 0; padding: 0; cursor: pointer; text-align
   <p class="title" id="title"></p>
   <p class="para" id="para"></p>
   <p class="hint">Klicka på en mening för att se vad som ligger bakom den.</p>
-  <div class="zoom" id="zoom" hidden><div class="sk" id="sk"></div></div>
+  <div class="zoom" id="zoom" hidden>
+    <p class="legend"><span class="mark new">+</span> ny <span class="mark mod">~</span> ändrad <span class="mark del">−</span> borttagen <span class="mark">✓</span> test <span class="mark warn">⚠</span> fynd att ta ställning till</p>
+    <div class="sk" id="sk"></div>
+  </div>
   <div class="all"><button id="allBtn">Visa alla ändrade funktioner</button></div>
   <p class="other" id="other"></p>
 </div>
@@ -137,16 +143,19 @@ button.gh { background: none; border: 0; padding: 0; cursor: pointer; text-align
     return ok;
   }
 
+  const allBtn = document.getElementById('allBtn');
+  const ALL_LABEL = allBtn.textContent;
+
+  // i is a sentence index or 'all'; clicking the open one again closes it.
   function show(i) {
-    if (active === i) { active = null; zoom.hidden = true; spans.forEach(s => s.classList.remove('on')); return; }
-    active = i;
-    spans.forEach((s, j) => s.classList.toggle('on', j === i));
-    renderItems(D.sentences[i].items);
+    active = active === i ? null : i;
+    spans.forEach((s, j) => s.classList.toggle('on', j === active));
+    allBtn.textContent = active === 'all' ? 'Dölj alla ändrade funktioner' : ALL_LABEL;
+    allBtn.setAttribute('aria-expanded', String(active === 'all'));
+    if (active === null) { zoom.hidden = true; return; }
+    renderItems(active === 'all' ? D.sentences.flatMap(s => s.items) : D.sentences[active].items);
   }
-  document.getElementById('allBtn').addEventListener('click', () => {
-    active = 'all'; spans.forEach(s => s.classList.remove('on'));
-    renderItems(D.sentences.flatMap(s => s.items));
-  });
+  allBtn.addEventListener('click', () => show('all'));
   if (D.other_files && D.other_files.length) {
     document.getElementById('other').textContent = 'Övrigt, går att skumma: ' + D.other_files.map(o => o.file + (o.reason ? ' (' + o.reason + ')' : '')).join(', ');
   }
